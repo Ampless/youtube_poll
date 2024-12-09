@@ -24,16 +24,17 @@ class YoutubePoll {
   }
 
   /// Polls [channel] for new videos every [interval].
-  Stream<Video> poll(channel, [Duration Function() interval = _5mins]) async* {
-    final vids = await yt.channels
-        .getUploads(channel)
-        .map((v) => v.id)
-        .where((v) => !_ignored.contains(v.value))
-        .toList();
-    for (final v in vids) {
-      yield await yt.videos.get(v);
-      _ignored.add(v.value);
+  Stream<List<Video>> pollBatched(channel, [Duration Function() interval = _5mins]) async* {
+    yield await pollOnce(channel).toList();
+    final i = interval();
+    if (i.inSeconds > 0) {
+      yield* await Future.delayed(i, () => pollBatched(channel));
     }
+  }
+
+  // Polls [channel] for new videos every [interval] and returns them individually.
+  Stream<Video> poll(channel, [Duration Function() interval = _5mins]) async* {
+    yield* pollOnce(channel);
     final i = interval();
     if (i.inSeconds > 0) {
       yield* await Future.delayed(i, () => poll(channel));
