@@ -1,3 +1,7 @@
+## 0.2.1
+
+- Fix `poll` and `pollBatched` not passing along `interval`.
+
 ## 0.2.0
 
 - Add `pollBatched`.

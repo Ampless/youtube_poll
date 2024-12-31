@@ -24,11 +24,12 @@ class YoutubePoll {
   }
 
   /// Polls [channel] for new videos every [interval].
-  Stream<List<Video>> pollBatched(channel, [Duration Function() interval = _5mins]) async* {
+  Stream<List<Video>> pollBatched(channel,
+      [Duration Function() interval = _5mins]) async* {
     yield await pollOnce(channel).toList();
     final i = interval();
     if (i.inSeconds > 0) {
-      yield* await Future.delayed(i, () => pollBatched(channel));
+      yield* await Future.delayed(i, () => pollBatched(channel, interval));
     }
   }
 
@@ -37,7 +38,7 @@ class YoutubePoll {
     yield* pollOnce(channel);
     final i = interval();
     if (i.inSeconds > 0) {
-      yield* await Future.delayed(i, () => poll(channel));
+      yield* await Future.delayed(i, () => poll(channel, interval));
     }
   }
 
